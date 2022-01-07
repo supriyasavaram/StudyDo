@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+
+{% load socialaccount %}
+{% load bootstrap5 %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+StudyDo - Upload a File
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <h1> Upload a File </h1>
+    <u1>
+      <form class="text-center" method="post" enctype="multipart/form-data">
+        <div style="text-align: left;">
+          {% csrf_token %}
+          {% bootstrap_form form %}
+        </div>
+        
+        <button type="submit" class="btn btn-dark">Upload file</button>
+      </form>
+
+    </u1>
+
+    {% else %}
+    You must <a href="{% provider_login_url 'google' %}" style="color:black;">log in</a> before you can upload notes.
+        
+    {% endif %}
+
+{% endblock %}

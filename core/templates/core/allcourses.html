@@ -1,0 +1,60 @@
+{% extends 'core/base.html' %}
+
+{% load socialaccount %}
+{% load bootstrap5 %}
+{% load static %}
+
+
+{% block title %}
+StudyDo - Courses
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<h1> Courses </h1>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div style="float: left;">
+                    <a href="{% url 'core:create_course' %}" class="btn btn-dark">Add Course</a>
+                </div>
+            </div>
+
+            <div class="col-sm-6">
+                <div style="float: right;">
+                    <form method=POST action="{% url 'core:Courses' %}">
+                        {% csrf_token %}
+                        <div class="form-group-right">
+                            <select name="sortby" id="sortoptions">
+                                <option disabled="true" selected>--Sort--</option>
+                                <option value="asc">Sort A-Z</option>
+                                <option value="desc">Sort Z-A</option>
+                            </select>
+                            <button type="submit" class="btn btn-dark">Sort</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <p></p>
+        <p></p>
+
+        <div class="list-group">
+            {% for course in all_courses_list %}
+            <a href="{% url 'core:Courses' course.slug %}" class="list-group-item list-group-item-action">
+                <div style="float: left;">{{course}}</div>
+            </a>
+            <p></p>
+            {% endfor %}
+        </div>
+
+
+
+{% else %}
+    You must <a href="{% provider_login_url 'google' %}" style="color:black;">log in</a> before you can view courses.
+        
+{% endif %}
+
+{% endblock %}

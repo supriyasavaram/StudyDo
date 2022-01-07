@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% load socialaccount %}
+{% load bootstrap5 %}
+{% load static %}
+
+
+{% block title %}
+StudyDo - Add Course
+{% endblock %}
+
+
+{% block content %}
+<head>
+    <style>
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+  
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+
+<h1>Add Course</h1>
+
+{% if user.is_authenticated %}
+    <form action="{% url 'core:create_course' %}" method="post">
+        <div style="text-align: left;">
+            {% csrf_token %}
+            {% bootstrap_form form %}
+        </div>  
+        
+        <button type="submit" class="btn btn-dark">Submit</button>
+    </form>
+
+{% else %}
+    You must <a href="{% provider_login_url 'google' %}" style="color:black;">log in</a> before you can add a course.
+        
+{% endif %}
+
+{% endblock %}

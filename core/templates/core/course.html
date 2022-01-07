@@ -1,0 +1,158 @@
+<!---/***************************************************************************************
+*  REFERENCES
+*  Title: Collapse
+*  Author: <author(s) names>
+*  Date: <date>
+*  Code version: <code version>
+*  URL: https://getbootstrap.com/docs/4.1/components/collapse/
+*  Software License: <license software is released under>
+*
+*  Title: Bootstrap accordion not opening
+*  Author: Lalji Tadhani
+*  URL: https://stackoverflow.com/questions/54944568/bootstrap-accordion-not-opening
+*
+***************************************************************************************/
+--->
+
+{% extends 'core/base.html' %}
+
+{% load socialaccount %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block title %}
+StudyDo - {{course}}
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+    <h1>
+        {{course}}
+    </h1>
+
+    {% if enrolled == "true" %}
+        <div class="row">
+            <div class="col-sm-6">
+                <div style="float: left;">
+                    <a href="{% url 'core:upload_notes' course%}" class="btn btn-dark">Upload Notes</a>
+                </div>
+            </div>
+        
+            <div class="col-sm-6" style="float: right;">
+                <div style="float: right;">
+                    <form method=POST action="{% url 'core:Courses' course.slug %}">
+                        {% csrf_token %}
+                        <div class="form-group-right">
+                            <select name="sortbyNotes" id="sortoptions">
+                                <option disabled="true" selected>--Sort--</option>
+                                <option value="asc">Sort A-Z</option>
+                                <option value="desc">Sort Z-A</option>
+                            </select>
+                            <button type="submit" class="btn btn-dark">Sort</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <br></br>
+        
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                <th>File Name</th>
+                <th>Download</th>
+                <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for upload in uploads %}
+                    <tr>
+                        <td>{{ upload.title }}</td>
+                        <td>
+                            <a href="{{ upload.upload_file.url }}" class="btn btn-dark" target="_blank">
+                                Download
+                            </a>
+                        </td>
+                        <td>
+                            {% if upload.user == user.username %}
+                            <form action="{% url 'core:delete_upload' course.slug upload.pk %}" method="post" onclick="return confirm('Are you sure you want to delete this?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-dark">Delete</button>
+                            </form>
+                            {% endif %}
+                            {% if upload.user != user.username %}
+                            <form action="{% url 'core:delete_upload' course.slug upload.pk %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-secondary">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {%endfor %}
+            </tbody>
+        </table>
+
+        <br></br>
+
+        <div>
+        <div class="accordion" id="accordionExample">
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+            
+            <div class="card" style="border-color: black;">              
+              <div class="card-header collapsed card-link bg-dark" data-toggle="collapse" data-target="#collapseOne" style="text-align: left; cursor: pointer;">
+                  Students
+              </div>
+
+              <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordionExample">
+                <div class="card-body" id="student-collapse">
+                    {% for student in students %}
+                        <div class="row">
+                            <div class="col-sm-4" style="float: left;">
+                                <p style="color: black;">{{student.user.first_name}}</p>
+                            </div>
+
+                            <div class="col-sm-4" style="float: center;">
+                                <p style="color: black;">{{student.user.last_name}}</p>
+                            </div>
+
+                            <div class="col-sm-4" style="float: right;">
+                                <p style="color: black;">{{student.user.email}}</p>
+                            </div>
+                        </div>
+                    {% endfor %}                   
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <br></br>
+        <br></br>
+        {% if isAdmin == "false" %}
+            <form action="{% url 'core:course_enroll' course.slug %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-dark" value = "leave {{course}}" name = "courseaction">Leave Course</button>
+            </form>
+        {% endif %}
+        </div>
+
+    {% else %}
+        <br></br>
+        You must join the course before you can view it.
+        <br></br>
+        <form action="{% url 'core:course_enroll' course.slug %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-dark" value="join {{course}} " name = "courseaction">Join Course</button>
+        </form>
+
+    {% endif %}
+
+{% else %}
+    You must <a href="{% provider_login_url 'google' %}" style="color:black;">log in</a> before you can view courses.
+        
+{% endif %}
+
+{% endblock %}

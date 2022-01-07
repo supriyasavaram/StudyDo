@@ -1,0 +1,87 @@
+<!---/***************************************************************************************
+*  REFERENCES
+*  Title: Navbar
+*  Author: <author(s) names>
+*  Date: <date>
+*  Code version: <code version>
+*  URL: https://getbootstrap.com/docs/5.0/components/navbar/
+*  Software License: <license software is released under>
+*
+*  Title: Icon
+*  URL: https://www.iconfinder.com/icons/5098440/friends_group_study_icon
+*
+***************************************************************************************/
+--->
+
+{% extends 'core/bootstrap.html' %}
+
+{% load socialaccount %}
+{% load bootstrap5 %}
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+{% block bootstrap5_content %}
+    <div class="container">
+      
+    <header style="background-color: #9c6e4e;">
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand mr-auto" href="#">
+        &ensp;
+        {% comment %} {% block title %}(no title){% endblock %} {% endcomment %}
+        </a>
+
+          <a class="navbar-brand" href="{% url 'core:Index' %}">
+              <img src="../../static/logo3.png" alt="StudyDo Home" width="145rem">
+          </a>
+
+        {% if user.is_authenticated %}
+        
+            <a class = "navbar-brand" href="{% url 'core:Calendar' %}" style="margin-left: 5%; margin-right: 5%;"> Calendar </a>
+
+            <a class = "navbar-brand" href="{% url 'core:Courses' %}" style="margin-right: 5%;"> Courses </a>
+
+            <span class="navbar-brand nav-item dropdown" style="margin-right: 5%;">
+              {% get_social_accounts user as accounts %}
+              {% if accounts %}
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color:white">
+                  Hello, {{ user.first_name }}!
+                </a>
+              {% else %}
+                <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color:white">
+                  Hello, Admin!
+                </a>
+              {% endif %}
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+              </ul>
+            </span>
+
+        {% else %}
+            <a class="navbar-brand" href="{% provider_login_url 'google' %}" style="margin-left: 5%;">Login</a>
+        {% endif %}
+
+      </nav>
+    </header>
+
+    {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}
+
+    <body style="padding-top: 80px; padding-bottom: 80px; background-color: #7db46cff; color:white;" class="text-center">
+        {% block content %}(no content){% endblock %}
+    </body>
+    
+    <footer class="navbar bg-dark fixed-bottom">
+      <div class="container; mx-auto">
+        <span class="text-white"> Group A-04 </span>
+      </div>
+    </footer>
+
+    </div>
+{% endblock %}
+
+
+</body>

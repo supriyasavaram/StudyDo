@@ -1,0 +1,138 @@
+{% extends 'core/base.html' %}
+
+{% load socialaccount %}
+{% load bootstrap5 %}
+{% load static %}
+
+
+{% block title %}
+StudyDo - Calendar
+{% endblock %}
+
+{% block content %}
+
+<h1>Calendar</h1>
+
+{% if user.is_authenticated %}
+    {% get_social_accounts user as accounts %}
+    {% if accounts %}
+        <div class="row">
+            <div class="col-sm-8">
+                <h2>Add Event</h2>
+                <form action="{% url 'core:Calendar' %}" method="POST">
+                    {% csrf_token %}
+
+                    <div class="row p-2">
+                        <div class="col-sm-6"><label class="visually-hidden" for="id_eventName">Name of Event</label><input type="text"
+                        name="eventName" maxlength="200" class="form-control" placeholder="Name of Event" title="" required
+                        id="id_eventName"></div>
+                        <div class="col-sm-6"><label class="visually-hidden" for="id_eventLocation">Event Location</label><input
+                        type="text" name="eventLocation" maxlength="500" class="form-control" placeholder="Event Location"
+                        title="" id="id_eventLocation"></div>
+                    </div>
+                <div class="row p-2">
+                    <div class="col-12"><label class="visually-hidden" for="id_eventDesc">Event Details</label><textarea type="text"
+                        name="eventDesc" maxlength="500" rows=4 class="form-control" placeholder="Event Details" title="" id="id_eventDesc"></textarea></div>
+                </div>
+                <div class="row p-2">
+                    <h4 class="col-2">Start:</h4>
+                    <div class="col-auto"><input
+                        id="start-time" type="datetime-local" name="eventStart" class="form-control" placeholder="Start Time" title="" required id="id_eventStart"></div>
+                </div>
+                <div class="row p-2">
+                    <h4 class="col-2">End:</h4>
+                    <div class="col-auto"><input
+                        id="end-time" type="datetime-local" name="eventEnd" class="form-control" placeholder="End Time" title="" required
+                        id="id_eventEnd"></div>
+                    <input class="col-auto btn btn-dark" type="submit" value="Add to Calendar">
+                </div>
+
+
+                    {% buttons %}
+                    {% endbuttons %}
+
+                    {% if form.errors %}
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div class="row" style="color:red; font-family: system-ui; font-size:100%;">
+                                    {{ error|escape }}
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div class="row" style="color:red; font-family: system-ui; font-size:100%;">
+                                {{ error|escape }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                </form>
+            </div>
+
+            <div class="col-sm-4">
+
+                <!-- https://www.cssscript.com/event-calendar-color/ -->
+
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/color-calendar/dist/css/theme-basic.css" />
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/color-calendar/dist/css/theme-glass.css" />
+                <script src="https://cdn.jsdelivr.net/npm/color-calendar/dist/bundle.min.js"></script>
+                
+            
+                <h2>Upcoming Events</h2>
+            
+                <div id="color-calendar" ></div>
+                <div id="daily-list" class="list-group p-3"></div>
+            
+                <script>
+                    var myEvents = [
+                        
+                    {% for event in upcoming %}
+                        {
+                            start: '{{ event.start }}',
+                            end: '{{ event.end }}',
+                            url: '{{ event.link }}',
+                            name: '{{ event.name }}',
+                            desc: '{{ event.desc }}',
+            
+                        },
+                    {% endfor %}
+            
+                    ];
+            
+                    var dateChanged = function(currentDate, events) {
+                        var html = "";
+            
+                        for (var i = 0; i < events.length; i ++) {
+
+                            var start = new Date(events[i].start);
+            
+                            html += "<a href='" + events[i].url + "'class='list-group-item list-group-item-action d-flex justify-content-between align-items-center' target='_blank' rel='noopener noreferrer'>" + events[i].name + (events[i].desc != "None" ? ' - ' + events[i].desc : '') + "<span class='badge bg-primary rounded-pill'>" + start.getHours() + ":" + String(start.getMinutes()).padStart(2, '0') + "</span></a>";
+                        }
+                        
+                        document.getElementById("daily-list").innerHTML = html;
+
+                        var calendarTime = new Date(currentDate - (new Date()).getTimezoneOffset() * 60000).toISOString().slice(0,-8);
+                        document.getElementById("start-time").value = calendarTime;
+                        document.getElementById("end-time").value = calendarTime;
+                    }
+
+                    new Calendar({
+                        id: '#color-calendar',
+                        eventsData: myEvents,
+                        dateChanged: dateChanged,
+                    })
+                </script>
+            </div>
+        </div>
+    {% else %}
+        You must log in with a Google account before you can view the calendar.
+    
+    {% endif %}
+
+{% else %}
+    You must <a href="{% provider_login_url 'google' %}" style="color:black;">log in</a> before you can view the calendar.
+        
+{% endif %}
+
+
+{% endblock %}
